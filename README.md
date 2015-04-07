@@ -3,14 +3,8 @@ study using Bootstrap, AngularJS, Play 2, etc to build a modern web application
 
 Getting Started
 ----------
-
-```
-../modern-web-template >  sbt run
-```
-
+sbt run  
 This should fetch all the dependencies and start a Web Server listening on *localhost:9000*
-
-```
 
 正在开发的功能
 ------------
