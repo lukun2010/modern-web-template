@@ -15,4 +15,6 @@ libraryDependencies ++= Seq(
   "org.webjars" % "bootstrap" % "3.3.1",
   "org.webjars" % "angularjs" % "1.3.8",
   "org.webjars" % "angular-ui-bootstrap" % "0.12.0",
+  "com.google.guava" % "guava" % "11.0.2",
+  "org.apache.kafka" % "kafka_2.10" % "0.8.1.1" exclude("javax.jms","jms") exclude("com.sun.jdmk","jmxtools") exclude("com.sun.jmx","jmxri"),
   "org.mockito" % "mockito-core" % "1.10.17" % "test")
