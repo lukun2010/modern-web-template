@@ -23,4 +23,4 @@ GET         /schemas/:schemaName/versions/:version        @controllers.Applicati
 POST        /schemas/:schemaName                          @controllers.Application.newSchema(schemaName)
 
 GET         /message                                      controllers.Message.socket
-GET         /message2                                     controllers.Message2.socket
+GET         /message2                                     controllers.Message3.socket

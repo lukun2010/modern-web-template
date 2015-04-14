@@ -5,9 +5,9 @@ package controllers;
  */
 public class MsgEnvelope {
     public final String event;
-    public final String data;
+    public final Object data;
 
-    public MsgEnvelope(String event, String data) {
+    public MsgEnvelope(String event, Object data) {
         this.event = event;
         this.data = data;
     }

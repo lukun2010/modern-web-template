@@ -7,13 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Akka;
 import play.libs.F;
-import play.libs.Json;
 import play.mvc.WebSocket;
 import play.mvc.Controller;
 import scala.concurrent.duration.Duration;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,28 +23,32 @@ public class Message2  extends Controller {
 
     private static LookupBusImpl lookupBus = new LookupBusImpl();
 
+    private static ActorRef kafkaActor;
+
+    static {
+        // 设置Context
+        KafkaSourceContext context = new KafkaSourceContext();
+        context.put(KafkaSourceConstants.ZOOKEEPER_CONNECT_FLUME, "datanode1.hadoop.bi.bestv.com.cn:2181,datanode2.hadoop.bi.bestv.com.cn:2181,datanode3.hadoop.bi.bestv.com.cn:2181,namenode.hadoop.bi.bestv.com.cn:2181,secondarynamenode.hadoop.bi.bestv.com.cn:2181");
+        context.put(KafkaSourceConstants.GROUP_ID_FLUME, "00000000");
+        context.put(KafkaSourceConstants.TOPIC, "OTT-TPLAY");
+        // Create Actor
+        kafkaActor = Akka.system().actorOf(KafkaSourceActor.props(context, lookupBus));
+        // Configure
+        kafkaActor.tell("configure", ActorRef.noSender());
+        // Start
+        kafkaActor.tell("start", ActorRef.noSender());
+        // Process
+
+        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS),
+                kafkaActor,
+                "process",
+                Akka.system().dispatcher(),
+                ActorRef.noSender());
+
+        System.out.println("kafkaActor process");
+    }
+
     public static WebSocket<JsonNode> socket() {
-
-        Akka.system().scheduler().schedule(
-                Duration.create(0, TimeUnit.SECONDS),
-                Duration.create(1, TimeUnit.SECONDS),
-                new Runnable() {
-                    private int cnt = 1;
-                    @Override
-                    public void run() {
-                        // 定时向总线发消息
-                        MsgEnvelope msgEnvelope = new MsgEnvelope("data" + cnt , "Hello! " + cnt);
-                        if (cnt % 10 == 0) {
-                            cnt = 1;
-                        } else{
-                            cnt++;
-                        }
-                        lookupBus.publish(msgEnvelope);
-                    }
-                },
-                Akka.system().dispatcher()
-        );
-
         return WebSocket.withActor(new F.Function<ActorRef, Props>() {
             @Override
             public Props apply(ActorRef out) throws Throwable {

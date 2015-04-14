@@ -30,7 +30,7 @@ public class MyWebSocketOutputActor extends UntypedActor {
         if (message instanceof MsgEnvelope) {
             Map<String, String> innerMap = new HashMap<String, String>();
             innerMap.put("event", "message");
-            innerMap.put("data", ((MsgEnvelope) message).data);
+            innerMap.put("data", ((MsgEnvelope) message).data.toString());
             System.out.println(innerMap);
             out.tell(Json.toJson(innerMap), self());
         }

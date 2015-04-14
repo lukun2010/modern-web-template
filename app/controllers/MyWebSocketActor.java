@@ -45,7 +45,7 @@ public class MyWebSocketActor extends UntypedActor {
                 outputActor = Akka.system().actorOf(MyWebSocketOutputActor.props(out));
                 // 进行新的订阅
                 System.out.println("onReceive in MyWebScoketActor, subscribe by " + msgEnvelope.data);
-                lookupBus.subscribe(outputActor, msgEnvelope.data);
+                lookupBus.subscribe(outputActor, msgEnvelope.data.toString());
             } else {
                 // 暂无其他动作
             }

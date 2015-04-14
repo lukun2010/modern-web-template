@@ -30,6 +30,14 @@ public class KafkaSourceContext {
         parameters.clear();
     }
 
+    public void putAll(Map<String, String> map) {
+        parameters.putAll(map);
+    }
+
+    public void put(String key, String value) {
+        parameters.put(key, value);
+    }
+
     public ImmutableMap<String, String> getSubProperties(String prefix) {
         Preconditions.checkArgument(prefix.endsWith("."),
                 "The given prefix does not end with a period (" + prefix + ")");
@@ -43,6 +51,14 @@ public class KafkaSourceContext {
             }
         }
         return ImmutableMap.copyOf(result);
+    }
+
+    public Integer getInteger(String key, Integer defaultValue) {
+        String value = get(key);
+        if(value != null) {
+            return Integer.parseInt(value.trim());
+        }
+        return defaultValue;
     }
 
     public String getString(String key, String defaultValue) {

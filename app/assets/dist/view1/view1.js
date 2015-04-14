@@ -114,8 +114,9 @@ angular.module('myApp.view1', ['ngRoute',  'angularGrid'])
         }
 
         var columnDefs = [
-            {displayName: "字段名称", field: "name"},
-            {displayName: "字段类型", field: "type"}
+            {displayName: "字段名称", field: "name", width: 150},
+            {displayName: "字段类型", field: "type", width: 400},
+            {displayName: "默认值", field: "defaultval", width: 180}
         ];
 
         $scope.rowData = [];
@@ -226,6 +227,7 @@ angular.module('myApp.view1', ['ngRoute',  'angularGrid'])
                 $log.info("确定提交");
                 $log.info("开始提交");
                 var futureResponse = $http.post("/schemas/" + $scope.schemaName, $scope.rowData);
+                $log.log($scope.rowData);
                 futureResponse.success(function (data, status, headers, config) {
                     $log.log("submit Schema Success");
                     $log.log(data);
