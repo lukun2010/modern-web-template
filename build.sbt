@@ -1,13 +1,13 @@
 name := "modern-web-template"
 
-version := "0.1-SNAPSHOT"
+version := "0.2-SNAPSHOT"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.5"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
-resolvers += "Local Maven Repository" at "file:///c:/Users/lu.kun/.m2/repository"
+//resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+resolvers += "Local Maven Repository" at "file:///c:/Users/lu.kun/.m2/repository/"
 
 libraryDependencies ++= Seq(
   "com.google.inject" % "guice" % "3.0",
@@ -18,8 +18,9 @@ libraryDependencies ++= Seq(
   "org.webjars" % "angular-ui-bootstrap" % "0.12.0",
   "com.google.guava" % "guava" % "11.0.2",
   "org.apache.avro" % "avro" % "1.7.7",
-  "com.bestv.bi" % "schemaclient" % "1.0-SNAPSHOT",
+  "org.schemarepo" % "schema-repo-common" % "0.1.3-SNAPSHOT",
   "org.schemarepo" % "schema-repo-client" % "0.1.3-SNAPSHOT",
+  "com.bestv.bi" % "schemaclient" % "1.2-SNAPSHOT",
   "com.sun.jersey.contribs" % "jersey-multipart" % "1.15",
   "com.sun.jersey.contribs" % "jersey-guice" % "1.15",
   "com.sun.jersey" % "jersey-server" % "1.15",

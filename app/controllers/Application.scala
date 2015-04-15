@@ -4,7 +4,7 @@ import javax.inject.{Singleton, Inject}
 import com.bestv.bi.schemaclient.AvroRESTCacheRepositoryClient
 import controllers.avro.AvroSchemaWrapper
 import org.apache.avro.Schema
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, JsArray, JsValue, Json}
 import services.UUIDGenerator
 import org.slf4j.{LoggerFactory, Logger}
 import play.api.mvc._
@@ -39,15 +39,15 @@ class Application @Inject() (uuidGenerator: UUIDGenerator) extends Controller {
 
   def getSchemaNames = Action {
     import scala.collection.JavaConversions._
-    val jsonArray = Json.toJson(c1.subjects().map(_.getName))
+    val jsonArray = Json.toJson(c1.subjectNames().toSeq)
     println(jsonArray);
     Ok(jsonArray)
   }
 
   def getVersionsBySchemaName(schemaName: String) = Action {
     import scala.collection.JavaConversions._
-    val subjectEntry = c1.subjects().filter(_.getName.equals(schemaName)).head;
-    val jsonArray = Json.toJson(subjectEntry.allEntries().map(_.getId))
+    val subjectEntry = c1.lookupAll(schemaName);
+    val jsonArray = Json.toJson(subjectEntry.map(_.getId))
     println(jsonArray)
     Ok(jsonArray)
   }
@@ -77,34 +77,42 @@ class Application @Inject() (uuidGenerator: UUIDGenerator) extends Controller {
 
   def newSchema(schemaName: String) = Action { request =>
     val body = request.body
-
     val bodyJs = body.asJson.get
-    val nm = (bodyJs \\ "name").map("\"name\":\"" + _.as[String] + "\"")
-    val tp = (bodyJs \\ "type").map("\"type\":" +_.as[String])
-    val dv = (bodyJs \\ "defaultval").map("\"default\":" + _.as[String])
-    val fields = ((nm zip tp).map((x) => {
-      "{" +
-        x._1 + "," + x._2
-    }) zip dv).map((x) => {
-      if (x._2 != null) {
-        x._1 + "," + x._2 + "}"
-      } else {
-        x._1 + "}"
+
+    try {
+      val fields = bodyJs.as[JsArray].value.map((x) => {
+        var part = "{\"name\":\"" + (x \ "name").as[String] + "\",\"type\":" + (x \ "type").as[String]
+        if ((x \\ "defaultval").size > 0)
+          part = part + ",\"default\":" + (x \ "defaultval").as[String]
+        part + "}"
+      })
+      val schemaStr = "{\"namespace\":\"com.bestv.bdp.schema\",\"name\":\"" + schemaName + "\",\"type\":\"record\",\"fields\":[" +
+        fields.mkString(",") +
+        "]}"
+
+      println(schemaStr)
+      Schema.parse(schemaStr)
+      c1.registerSchema(schemaName, schemaStr)
+
+      println(c1.lookupLatest(schemaName).getId)
+
+      val s1 = Map(
+        "type" -> "success",
+        "msg" -> "提交成功！",
+        "versionid" -> c1.lookupLatest(schemaName).getId
+      )
+      val jsonArray = Json.toJson(s1)
+      Ok(jsonArray)
+    } catch {
+      case ex: Exception => {
+        val s1 = Map(
+          "type" -> "alert",
+          "msg" -> "提交失败！"
+        )
+        val jsonArray = Json.toJson(s1)
+        BadRequest(jsonArray)
       }
-    })
-
-    val schemaStr = "{\"namespace\":\"com.bestv.bdp.schema\",\"name\":\"" + schemaName + "\",\"type\":\"record\",\"fields\":\"" +
-      fields.mkString(",") +
-      "}"
-
-    println(schemaStr)
-
-    val s1 = Map(
-      "type" -> "success",
-      "msg" -> "提交成功！"
-    )
-    val jsonArray = Json.toJson(s1)
-    Ok(jsonArray)
+    }
   }
 
 }
